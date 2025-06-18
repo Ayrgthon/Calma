@@ -58,6 +58,13 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
     </svg>
   ),
+  trash: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+      />
+    </svg>
+  ),
 };
 
 const habitosIniciales = [
@@ -81,6 +88,11 @@ const entradasIniciales = [
   }
 ];
 
+const truncateText = (text, maxLength = 25) => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + "...";
+};
+
 export default function RetosDiarios() {
   const [tab, setTab] = useState("retos");
   const [tareas, setTareas] = useState(tareasIniciales);
@@ -91,6 +103,7 @@ export default function RetosDiarios() {
   const [mostrarNuevaEntrada, setMostrarNuevaEntrada] = useState(false);
   const [nuevaEntrada, setNuevaEntrada] = useState({ titulo: "", contenido: "" });
   const [entradaEnEdicion, setEntradaEnEdicion] = useState(null);
+  const [modoEdicion, setModoEdicion] = useState(false);
 
   const toggleTarea = (id) => {
     setTareas(tareas.map(tarea => 
@@ -125,56 +138,69 @@ export default function RetosDiarios() {
       const options = { weekday: 'long', month: 'long', day: 'numeric' };
       const fechaFormateada = fecha.toLocaleDateString('es-ES', options);
       
-      setEntradas([...entradas, {
-        id: Date.now(),
-        titulo: nuevaEntrada.titulo,
-        contenido: nuevaEntrada.contenido,
-        fecha: fechaFormateada
-      }]);
+      if (modoEdicion && entradaEnEdicion) {
+        setEntradas(entradas.map(entrada => 
+          entrada.id === entradaEnEdicion.id 
+            ? {
+                ...entrada,
+                titulo: nuevaEntrada.titulo,
+                contenido: nuevaEntrada.contenido
+              }
+            : entrada
+        ));
+      } else {
+        setEntradas([...entradas, {
+          id: Date.now(),
+          titulo: nuevaEntrada.titulo,
+          contenido: nuevaEntrada.contenido,
+          fecha: fechaFormateada
+        }]);
+      }
+      
       setNuevaEntrada({ titulo: "", contenido: "" });
       setMostrarNuevaEntrada(false);
-    }
-  };
-
-  const iniciarEdicion = (entrada) => {
-    setEntradaEnEdicion({
-      ...entrada,
-      tituloTemp: entrada.titulo,
-      contenidoTemp: entrada.contenido
-    });
-  };
-
-  const guardarEdicion = () => {
-    if (entradaEnEdicion.tituloTemp.trim() && entradaEnEdicion.contenidoTemp.trim()) {
-      setEntradas(entradas.map(entrada => 
-        entrada.id === entradaEnEdicion.id 
-          ? {
-              ...entrada,
-              titulo: entradaEnEdicion.tituloTemp,
-              contenido: entradaEnEdicion.contenidoTemp
-            }
-          : entrada
-      ));
+      setModoEdicion(false);
       setEntradaEnEdicion(null);
     }
   };
 
-  const cancelarEdicion = () => {
-    setEntradaEnEdicion(null);
+  const iniciarEdicion = (entrada) => {
+    setEntradaEnEdicion(entrada);
+    setNuevaEntrada({
+      titulo: entrada.titulo,
+      contenido: entrada.contenido
+    });
+    setModoEdicion(true);
+    setMostrarNuevaEntrada(true);
+  };
+
+  const borrarEntrada = (id) => {
+    if (window.confirm('¿Estás seguro de que quieres borrar esta entrada?')) {
+      setEntradas(entradas.filter(entrada => entrada.id !== id));
+    }
   };
 
   const renderDiario = () => {
     if (mostrarNuevaEntrada) {
       return (
         <div className="min-h-screen bg-[#FFF8E7] flex flex-col">
-          <header className="px-6 py-4 flex items-center border-b border-gray-200">
-            <button 
-              onClick={() => setMostrarNuevaEntrada(false)}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              {icons.back}
-            </button>
-            <h1 className="ml-4 text-xl font-semibold text-gray-800">Añadir Entrada</h1>
+          <header className="px-6 py-4 flex items-center justify-between border-b border-gray-200">
+            <div className="flex items-center">
+              <button 
+                onClick={() => {
+                  setMostrarNuevaEntrada(false);
+                  setModoEdicion(false);
+                  setEntradaEnEdicion(null);
+                  setNuevaEntrada({ titulo: "", contenido: "" });
+                }}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                {icons.back}
+              </button>
+              <h1 className="ml-4 text-xl font-semibold text-gray-800">
+                {modoEdicion ? "Editar Entrada" : "Añadir Entrada"}
+              </h1>
+            </div>
           </header>
 
           <div className="flex-1 p-6 flex flex-col gap-4">
@@ -195,7 +221,7 @@ export default function RetosDiarios() {
               onClick={guardarNuevaEntrada}
               className="w-full py-3 bg-teal-500 text-white rounded-xl font-medium hover:bg-teal-600 transition-colors"
             >
-              Añadir
+              {modoEdicion ? "Guardar Cambios" : "Añadir"}
             </button>
           </div>
         </div>
@@ -214,63 +240,35 @@ export default function RetosDiarios() {
               key={entrada.id} 
               className="bg-[#FFE4BC] rounded-xl p-4 mb-4 shadow-sm relative"
             >
-              {entradaEnEdicion?.id === entrada.id ? (
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-between items-start">
-                    <input
-                      type="text"
-                      value={entradaEnEdicion.tituloTemp}
-                      onChange={(e) => setEntradaEnEdicion({
-                        ...entradaEnEdicion,
-                        tituloTemp: e.target.value
-                      })}
-                      className="flex-1 px-2 py-1 text-lg font-bold bg-white rounded border border-gray-200 focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-                  <textarea
-                    value={entradaEnEdicion.contenidoTemp}
-                    onChange={(e) => setEntradaEnEdicion({
-                      ...entradaEnEdicion,
-                      contenidoTemp: e.target.value
-                    })}
-                    className="w-full p-2 text-gray-700 bg-white rounded border border-gray-200 focus:outline-none focus:border-teal-500 resize-none min-h-[100px]"
-                  />
-                  <div className="flex gap-2 justify-end mt-2">
-                    <button
-                      onClick={cancelarEdicion}
-                      className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={guardarEdicion}
-                      className="px-4 py-2 text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors"
-                    >
-                      Guardar
-                    </button>
-                  </div>
+              <div className="flex justify-between items-start">
+                <h2 className="font-bold text-gray-800">{entrada.titulo}</h2>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => iniciarEdicion(entrada)}
+                    className="text-gray-600 p-1 hover:text-teal-500 transition-colors"
+                  >
+                    {icons.edit}
+                  </button>
+                  <button 
+                    onClick={() => borrarEntrada(entrada.id)}
+                    className="text-gray-600 p-1 hover:text-red-500 transition-colors"
+                  >
+                    {icons.trash}
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <div className="flex justify-between items-start">
-                    <h2 className="font-bold text-gray-800">{entrada.titulo}</h2>
-                    <button 
-                      onClick={() => iniciarEdicion(entrada)}
-                      className="text-gray-600 p-1 hover:text-teal-500 transition-colors"
-                    >
-                      {icons.edit}
-                    </button>
-                  </div>
-                  <p className="text-gray-600 text-sm mt-1">{entrada.contenido}</p>
-                  <p className="text-gray-500 text-xs mt-2">{entrada.fecha}</p>
-                </>
-              )}
+              </div>
+              <p className="text-gray-600 text-sm mt-1">{truncateText(entrada.contenido)}</p>
+              <p className="text-gray-500 text-xs mt-2">{entrada.fecha}</p>
             </div>
           ))}
         </div>
 
         <button
-          onClick={() => setMostrarNuevaEntrada(true)}
+          onClick={() => {
+            setMostrarNuevaEntrada(true);
+            setModoEdicion(false);
+            setNuevaEntrada({ titulo: "", contenido: "" });
+          }}
           className="fixed right-6 bottom-24 w-14 h-14 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-teal-600 transition-colors"
         >
           {icons.plus}
