@@ -4,7 +4,9 @@ import React, { useState } from "react";
 const icons = {
   home: (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9m-9 3v9m0-13v4" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+      />
     </svg>
   ),
   calendar: (
@@ -32,7 +34,23 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
     </svg>
   ),
+  plus: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+  ),
+  minus: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+    </svg>
+  ),
 };
+
+const habitosIniciales = [
+  { id: 1, titulo: "Agradecer tres cosas cada día", descripcion: "Hábito 1", contador: 4 },
+  { id: 2, titulo: "Despertarse temprano sin alarma", descripcion: "Hábito 2", contador: 2 },
+  { id: 3, titulo: "Leer libros todas las noches", descripcion: "Hábito 3", contador: 6 },
+];
 
 const tareasIniciales = [
   { id: 1, texto: "Un día gris", completada: false },
@@ -43,6 +61,9 @@ const tareasIniciales = [
 export default function RetosDiarios() {
   const [tab, setTab] = useState("retos");
   const [tareas, setTareas] = useState(tareasIniciales);
+  const [habitos, setHabitos] = useState(habitosIniciales);
+  const [nuevoHabito, setNuevoHabito] = useState("");
+  const [vistaActual, setVistaActual] = useState("inicio");
 
   const toggleTarea = (id) => {
     setTareas(tareas.map(tarea => 
@@ -50,89 +71,178 @@ export default function RetosDiarios() {
     ));
   };
 
-  return (
-    <div className="min-h-screen bg-sky-100 flex flex-col">
-      {/* Header */}
-      <header className="px-6 pt-8 pb-4">
-        <div className="flex justify-between items-start">
-          <h1 className="text-4xl font-bold text-gray-800 leading-tight">
-            Hola,<br />Luna
-          </h1>
-          <div className="w-16 h-16 bg-yellow-200/80 rounded-xl border-2 border-yellow-300 flex items-center justify-center shadow-sm">
-            <span className="text-yellow-800 font-medium">Capi</span>
-          </div>
-        </div>
-      </header>
+  const ajustarContador = (id, incremento) => {
+    setHabitos(habitos.map(habito => 
+      habito.id === id 
+        ? { ...habito, contador: Math.max(0, habito.contador + incremento) }
+        : habito
+    ));
+  };
 
-      {/* Streak Card */}
-      <div className="px-6 mt-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-500">Racha</span>
-            <span className="text-gray-800 font-semibold">7 días</span>
-          </div>
-        </div>
-      </div>
+  const agregarHabito = () => {
+    if (nuevoHabito.trim()) {
+      const nuevoId = Math.max(...habitos.map(h => h.id)) + 1;
+      setHabitos([...habitos, {
+        id: nuevoId,
+        titulo: nuevoHabito,
+        descripcion: `Hábito ${nuevoId}`,
+        contador: 0
+      }]);
+      setNuevoHabito("");
+    }
+  };
 
-      {/* Main Content */}
-      <main className="flex-1 bg-white mt-6 rounded-t-[32px] px-6 pt-6 pb-24">
-        {/* Tabs */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setTab("retos")}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-              tab === "retos"
-                ? "bg-teal-50 text-teal-600 border border-teal-200"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            Retos Diarios
-          </button>
-          <button
-            onClick={() => setTab("habitos")}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-              tab === "habitos"
-                ? "bg-teal-50 text-teal-600 border border-teal-200"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            Hábitos
-          </button>
-        </div>
+  const renderContenido = () => {
+    switch (vistaActual) {
+      case "inicio":
+        return (
+          <>
+            {/* Header */}
+            <header className="px-6 pt-8 pb-4">
+              <div className="flex justify-between items-start">
+                <h1 className="text-4xl font-bold text-gray-800 leading-tight">
+                  Hola,<br />Luna
+                </h1>
+                <div className="w-16 h-16 bg-yellow-200/80 rounded-xl border-2 border-yellow-300 flex items-center justify-center shadow-sm">
+                  <span className="text-yellow-800 font-medium">Capi</span>
+                </div>
+              </div>
+            </header>
 
-        {/* Tasks */}
-        {tab === "retos" && (
-          <ul className="mt-8 space-y-4">
-            {tareas.map((tarea) => (
-              <li key={tarea.id} className="flex items-center">
+            {/* Streak Card */}
+            <div className="px-6 mt-4">
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Racha</span>
+                  <span className="text-gray-800 font-semibold">7 días</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <main className="flex-1 bg-white mt-6 rounded-t-[32px] px-6 pt-6 pb-24">
+              {/* Tabs */}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => toggleTarea(tarea.id)}
-                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
-                    tarea.completada
-                      ? "bg-teal-500 border-teal-500 text-white"
-                      : "border-gray-300 hover:border-teal-500"
+                  onClick={() => setTab("retos")}
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                    tab === "retos"
+                      ? "bg-teal-50 text-teal-600 border border-teal-200"
+                      : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {tarea.completada && icons.check}
+                  Retos Diarios
                 </button>
-                <span className={`ml-4 text-gray-700 ${tarea.completada ? "line-through text-gray-400" : ""}`}>
-                  {tarea.texto}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {tab === "habitos" && (
-          <div className="mt-8 text-center text-gray-500">
-            No hay hábitos configurados
-          </div>
-        )}
-      </main>
+                <button
+                  onClick={() => setTab("habitos")}
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                    tab === "habitos"
+                      ? "bg-teal-50 text-teal-600 border border-teal-200"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  Hábitos
+                </button>
+              </div>
+
+              {/* Tasks or Habits */}
+              {tab === "retos" && (
+                <ul className="mt-8 space-y-4">
+                  {tareas.map((tarea) => (
+                    <li key={tarea.id} className="flex items-center">
+                      <button
+                        onClick={() => toggleTarea(tarea.id)}
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                          tarea.completada
+                            ? "bg-teal-500 border-teal-500 text-white"
+                            : "border-gray-300 hover:border-teal-500"
+                        }`}
+                      >
+                        {tarea.completada && icons.check}
+                      </button>
+                      <span className={`ml-4 text-gray-700 ${tarea.completada ? "line-through text-gray-400" : ""}`}>
+                        {tarea.texto}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {tab === "habitos" && (
+                <div className="mt-8 space-y-4">
+                  {/* Lista de hábitos */}
+                  {habitos.map((habito) => (
+                    <div key={habito.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-800">{habito.titulo}</h3>
+                          <p className="text-sm text-gray-500">{habito.descripcion}</p>
+                        </div>
+                        <div className="flex items-center gap-3 ml-4">
+                          <button
+                            onClick={() => ajustarContador(habito.id, -1)}
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                          >
+                            {icons.minus}
+                          </button>
+                          <span className="w-6 text-center font-medium text-gray-700">
+                            {habito.contador}
+                          </span>
+                          <button
+                            onClick={() => ajustarContador(habito.id, 1)}
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors"
+                          >
+                            {icons.plus}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Formulario para agregar nuevo hábito */}
+                  <div className="mt-6">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={nuevoHabito}
+                        onChange={(e) => setNuevoHabito(e.target.value)}
+                        placeholder="Nuevo hábito..."
+                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-teal-500"
+                      />
+                      <button
+                        onClick={agregarHabito}
+                        className="px-4 py-2 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors"
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </main>
+          </>
+        );
+      // Aquí podemos agregar más casos para otras vistas cuando las necesitemos
+      default:
+        return <div>Vista no encontrada</div>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-sky-100 flex flex-col">
+      {renderContenido()}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
         <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
-          <button className="text-gray-400">{icons.home}</button>
+          <button 
+            onClick={() => setVistaActual("inicio")}
+            className={`text-gray-400 hover:text-teal-500 transition-colors ${
+              vistaActual === "inicio" ? "text-teal-500" : ""
+            }`}
+          >
+            {icons.home}
+          </button>
           <button className="text-gray-400">{icons.calendar}</button>
           <button className="text-teal-500 -mt-6 bg-white p-4 rounded-full shadow-lg border-4 border-sky-100">
             {icons.paw}
