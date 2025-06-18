@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ChatBot from "./ChatBot";
+import Refugio from "./Refugio";
 
 // Iconos SVG
 const icons = {
@@ -406,6 +407,8 @@ export default function RetosDiarios() {
         return renderDiario();
       case "chat":
         return <ChatBot />;
+      case "refugio":
+        return <Refugio />;
       default:
         return <div>Vista no encontrada</div>;
     }
@@ -448,7 +451,14 @@ export default function RetosDiarios() {
           >
             {icons.paw}
           </button>
-          <button className="text-gray-400">{icons.heart}</button>
+          <button 
+            onClick={() => setVistaActual("refugio")}
+            className={`text-gray-400 hover:text-teal-500 transition-colors ${
+              vistaActual === "refugio" ? "text-teal-500" : ""
+            }`}
+          >
+            {icons.heart}
+          </button>
           <button className="text-gray-400">{icons.user}</button>
         </div>
       </nav>
