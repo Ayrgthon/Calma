@@ -282,129 +282,123 @@ export default function RetosDiarios() {
       case "inicio":
         return (
           <>
-            {/* Header */}
-            <header className="px-6 pt-8 pb-4">
-              <div className="flex justify-between items-start">
-                <h1 className="text-4xl font-bold text-gray-800 leading-tight">
-                  Hola,<br />Luna
-                </h1>
-                <div className="w-16 h-16 bg-yellow-200/80 rounded-xl border-2 border-yellow-300 flex items-center justify-center shadow-sm">
-                  <span className="text-yellow-800 font-medium">Capi</span>
-                </div>
+            <header className="px-6 py-4 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Hola, Luna</h1>
+                <p className="text-gray-600">Capi</p>
+              </div>
+              <div className="w-16 h-16 relative">
+                <img 
+                  src="/ropa7-D.png" 
+                  alt="Capi" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </header>
 
-            {/* Streak Card */}
-            <div className="px-6 mt-4">
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Racha</span>
-                  <span className="text-gray-800 font-semibold">7 días</span>
+            <div className="px-6 py-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                    7
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Racha actual</p>
+                    <p className="text-xl font-bold text-gray-800">días</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Main Content */}
-            <main className="flex-1 bg-white mt-6 rounded-t-[32px] px-6 pt-6 pb-24">
-              {/* Tabs */}
-              <div className="flex gap-2">
+            <div className="px-6">
+              <div className="flex gap-4 mb-4">
                 <button
-                  onClick={() => setTab("retos")}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex-1 text-center py-2 border-b-2 ${
                     tab === "retos"
-                      ? "bg-teal-50 text-teal-600 border border-teal-200"
-                      : "bg-gray-100 text-gray-500"
+                      ? "border-teal-500 text-teal-500"
+                      : "border-transparent text-gray-500"
                   }`}
+                  onClick={() => setTab("retos")}
                 >
                   Retos Diarios
                 </button>
                 <button
-                  onClick={() => setTab("habitos")}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex-1 text-center py-2 border-b-2 ${
                     tab === "habitos"
-                      ? "bg-teal-50 text-teal-600 border border-teal-200"
-                      : "bg-gray-100 text-gray-500"
+                      ? "border-teal-500 text-teal-500"
+                      : "border-transparent text-gray-500"
                   }`}
+                  onClick={() => setTab("habitos")}
                 >
                   Hábitos
                 </button>
               </div>
 
-              {/* Tasks or Habits */}
-              {tab === "retos" && (
-                <ul className="mt-8 space-y-4">
+              {tab === "retos" ? (
+                <div className="space-y-3">
                   {tareas.map((tarea) => (
-                    <li key={tarea.id} className="flex items-center">
-                      <button
-                        onClick={() => toggleTarea(tarea.id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
-                          tarea.completada
-                            ? "bg-teal-500 border-teal-500 text-white"
-                            : "border-gray-300 hover:border-teal-500"
+                    <div
+                      key={tarea.id}
+                      className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={tarea.completada}
+                        onChange={() => toggleTarea(tarea.id)}
+                        className="w-5 h-5 rounded border-gray-300 text-teal-500 focus:ring-teal-500"
+                      />
+                      <span
+                        className={`flex-1 ${
+                          tarea.completada ? "line-through text-gray-400" : ""
                         }`}
                       >
-                        {tarea.completada && icons.check}
-                      </button>
-                      <span className={`ml-4 text-gray-700 ${tarea.completada ? "line-through text-gray-400" : ""}`}>
                         {tarea.texto}
                       </span>
-                    </li>
+                    </div>
                   ))}
-                </ul>
-              )}
-
-              {tab === "habitos" && (
-                <div className="mt-8 space-y-4">
-                  {/* Lista de hábitos */}
+                </div>
+              ) : (
+                <div className="space-y-3">
                   {habitos.map((habito) => (
-                    <div key={habito.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-800">{habito.titulo}</h3>
-                          <p className="text-sm text-gray-500">{habito.descripcion}</p>
-                        </div>
-                        <div className="flex items-center gap-3 ml-4">
-                          <button
-                            onClick={() => ajustarContador(habito.id, -1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-                          >
-                            {icons.minus}
-                          </button>
-                          <span className="w-6 text-center font-medium text-gray-700">
-                            {habito.contador}
-                          </span>
-                          <button
-                            onClick={() => ajustarContador(habito.id, 1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors"
-                          >
-                            {icons.plus}
-                          </button>
-                        </div>
+                    <div
+                      key={habito.id}
+                      className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm"
+                    >
+                      <span className="flex-1">{habito.titulo}</span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => ajustarContador(habito.id, -1)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center">{habito.contador}</span>
+                        <button
+                          onClick={() => ajustarContador(habito.id, 1)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
                   ))}
-
-                  {/* Formulario para agregar nuevo hábito */}
-                  <div className="mt-6">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={nuevoHabito}
-                        onChange={(e) => setNuevoHabito(e.target.value)}
-                        placeholder="Nuevo hábito..."
-                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-teal-500"
-                      />
-                      <button
-                        onClick={agregarHabito}
-                        className="px-4 py-2 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors"
-                      >
-                        Agregar
-                      </button>
-                    </div>
+                  <div className="mt-4">
+                    <input
+                      type="text"
+                      value={nuevoHabito}
+                      onChange={(e) => setNuevoHabito(e.target.value)}
+                      placeholder="Añadir nuevo hábito"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-teal-500"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && nuevoHabito.trim()) {
+                          agregarHabito();
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               )}
-            </main>
+            </div>
           </>
         );
       case "diario":
