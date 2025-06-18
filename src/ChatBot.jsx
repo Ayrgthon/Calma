@@ -41,6 +41,8 @@ const ChatBot = () => {
     }
   ]);
   const messagesEndRef = useRef(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentGeneratingText, setCurrentGeneratingText] = useState('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,9 +50,53 @@ const ChatBot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, currentGeneratingText]);
 
-  const handleSubmit = (e) => {
+  const LoadingDots = () => (
+    <motion.div className="flex space-x-1 items-center p-2">
+      {[0, 1, 2].map((dot) => (
+        <motion.div
+          key={dot}
+          className="w-2 h-2 bg-teal-500 rounded-full"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            duration: 0.5,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: dot * 0.2,
+          }}
+        />
+      ))}
+    </motion.div>
+  );
+
+  const simulateTokenGeneration = async (fullText) => {
+    const words = fullText.split(' ');
+    setIsTyping(true);
+    
+    // Primero mostramos los puntos de carga por 1 segundo
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Luego generamos el texto palabra por palabra
+    for (let i = 0; i <= words.length; i++) {
+      setCurrentGeneratingText(words.slice(0, i).join(' '));
+      // Tiempo aleatorio entre 50ms y 150ms para cada palabra
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50));
+    }
+
+    // Añadimos el mensaje completo a la lista de mensajes
+    setMessages(prev => [...prev, {
+      isUser: false,
+      text: fullText,
+      avatar: "/sensei-D.png"
+    }]);
+    
+    setCurrentGeneratingText('');
+    setIsTyping(false);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
@@ -62,15 +108,10 @@ const ChatBot = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
+    setIsTyping(true);
 
-    setTimeout(() => {
-      const senseiResponse = {
-        isUser: false,
-        text: SENSEI_RESPONSE,
-        avatar: "/sensei-D.png"
-      };
-      setMessages(prev => [...prev, senseiResponse]);
-    }, 1000);
+    // Simular respuesta del Sensei
+    await simulateTokenGeneration(SENSEI_RESPONSE);
   };
 
   return (
@@ -112,6 +153,22 @@ const ChatBot = () => {
                 avatar={message.avatar}
               />
             ))}
+            {isTyping && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex justify-start mb-4"
+              >
+                <div className="bg-white rounded-2xl p-2 rounded-bl-none">
+                  {currentGeneratingText ? (
+                    <div className="p-2">{currentGeneratingText}</div>
+                  ) : (
+                    <LoadingDots />
+                  )}
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
