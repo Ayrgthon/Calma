@@ -1,21 +1,36 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const CalendarioEmocional = () => {
-  // Obtener el mes actual
-  const meses = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
-  const mesActual = meses[new Date().getMonth()];
-  const año = new Date().getFullYear();
-
-  // Generar días del mes actual
-  const diasEnMes = new Date(año, new Date().getMonth() + 1, 0).getDate();
-  const primerDia = new Date(año, new Date().getMonth(), 1).getDay();
+const EMOTION_COLORS = {
+  // Colores para emociones
+  feliz: 'bg-teal-500 hover:bg-teal-600',
+  triste: 'bg-purple-500 hover:bg-purple-600',
+  enojado: 'bg-red-500 hover:bg-red-600',
+  emocionado: 'bg-sky-400 hover:bg-sky-500',
+  ansioso: 'bg-yellow-400 hover:bg-yellow-500',
+  estresado: 'bg-orange-500 hover:bg-orange-600',
   
-  const dias = Array.from({ length: diasEnMes }, (_, i) => i + 1);
-  const diasAnteriores = Array.from({ length: primerDia }, (_, i) => null);
+  // Estados por defecto
+  noOcurrido: 'bg-gray-200 hover:bg-gray-300 text-gray-600', // Días futuros
+  sinRegistro: 'bg-gray-400 hover:bg-gray-500' // Días pasados sin entrada
+};
+
+export default function CalendarioEmocional() {
+  const diasDelMes = Array.from({ length: 31 }, (_, i) => i + 1);
+  const nombreMes = new Date().toLocaleString('es-ES', { month: 'long' });
+  const diaActual = new Date().getDate();
+
+  // Simulación de datos - Esto después se conectará con el diario
+  const getEstadoDia = (dia) => {
+    if (dia > diaActual) return 'noOcurrido';
+    if (dia === 5) return 'feliz';
+    if (dia === 10) return 'triste';
+    if (dia === 15) return 'enojado';
+    if (dia === 20) return 'emocionado';
+    if (dia === 25) return 'ansioso';
+    if (dia === 28) return 'estresado';
+    return 'sinRegistro';
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -24,7 +39,7 @@ const CalendarioEmocional = () => {
       y: 0,
       transition: {
         duration: 0.5,
-        staggerChildren: 0.1
+        staggerChildren: 0.03
       }
     }
   };
@@ -34,42 +49,64 @@ const CalendarioEmocional = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { type: "spring", stiffness: 300, damping: 24 }
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20
+      }
+    }
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-sky-100 p-6">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="max-w-md mx-auto"
+    <motion.div 
+      className="min-h-screen bg-sky-100 p-6"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div 
+        className="max-w-2xl mx-auto"
+        variants={headerVariants}
       >
-        {/* Header */}
-        <motion.div 
-          className="text-center mb-8"
-          variants={itemVariants}
+        <motion.h2 
+          className="text-3xl font-bold text-gray-800 capitalize mb-2"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent mb-2">
-            {mesActual} {año}
-          </h1>
-          <p className="text-gray-600 text-sm px-4">
-            Esto es un tracking emocional, es para ver el comportamiento a lo largo del mes
-          </p>
-        </motion.div>
+          {nombreMes}
+        </motion.h2>
+        
+        <motion.p 
+          className="text-gray-600 mb-8"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Esto es un tracking emocional, es para ver el comportamiento a lo largo del mes
+        </motion.p>
 
-        {/* Calendario */}
         <motion.div 
           className="bg-white rounded-3xl p-6 shadow-lg"
-          variants={itemVariants}
+          variants={containerVariants}
         >
-          {/* Días de la semana */}
-          <div className="grid grid-cols-7 gap-2 mb-4 text-center">
+          <div className="grid grid-cols-7 gap-2 mb-4">
             {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((dia, index) => (
               <motion.div
                 key={index}
-                className="text-sm font-medium text-gray-400"
+                className="text-center text-gray-500 font-medium"
                 variants={itemVariants}
               >
                 {dia}
@@ -77,52 +114,54 @@ const CalendarioEmocional = () => {
             ))}
           </div>
 
-          {/* Días del mes */}
-          <div className="grid grid-cols-7 gap-2">
-            {[...diasAnteriores, ...dias].map((dia, index) => (
+          <motion.div 
+            className="grid grid-cols-7 gap-2"
+            variants={containerVariants}
+          >
+            {/* Espacios vacíos para alinear los días correctamente */}
+            {Array(3).fill(null).map((_, i) => (
+              <div key={`empty-${i}`} className="aspect-square" />
+            ))}
+
+            {diasDelMes.map((dia) => (
               <motion.div
-                key={index}
+                key={dia}
+                className="aspect-square"
                 variants={itemVariants}
-                whileHover={dia ? { scale: 1.1 } : {}}
-                whileTap={dia ? { scale: 0.95 } : {}}
-                className={`aspect-square flex items-center justify-center ${
-                  dia
-                    ? "cursor-pointer"
-                    : "pointer-events-none"
-                }`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {dia && (
-                  <motion.div
-                    className="w-10 h-10 rounded-full bg-teal-500 text-white flex items-center justify-center text-sm font-medium shadow-md hover:shadow-lg transition-shadow"
-                    initial={false}
-                    whileHover={{
-                      backgroundColor: "#0D9488",
-                      scale: 1.05
-                    }}
-                  >
-                    {dia}
-                  </motion.div>
-                )}
+                <motion.button
+                  className={`w-full h-full rounded-full flex items-center justify-center font-medium transition-colors ${EMOTION_COLORS[getEstadoDia(dia)]}`}
+                >
+                  {dia}
+                </motion.button>
               </motion.div>
             ))}
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Leyenda */}
-        <motion.div 
-          className="mt-6 bg-white rounded-2xl p-4 shadow-md"
-          variants={itemVariants}
-        >
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-teal-500" />
-              <span className="text-sm text-gray-600">Día registrado</span>
-            </div>
-          </div>
+          {/* Leyenda de colores */}
+          <motion.div 
+            className="mt-8 grid grid-cols-2 gap-4"
+            variants={containerVariants}
+          >
+            {Object.entries(EMOTION_COLORS).map(([emotion, color]) => (
+              <motion.div 
+                key={emotion}
+                className="flex items-center gap-2"
+                variants={itemVariants}
+              >
+                <div className={`w-4 h-4 rounded-full ${color.split(' ')[0]}`} />
+                <span className="text-sm text-gray-600 capitalize">
+                  {emotion === 'noOcurrido' ? 'Día futuro' : 
+                   emotion === 'sinRegistro' ? 'Sin registro' : 
+                   emotion}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
         </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
-};
-
-export default CalendarioEmocional; 
+} 

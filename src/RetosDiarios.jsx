@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ChatBot from "./ChatBot";
 import Refugio from "./Refugio";
+import CalendarioEmocional from "./CalendarioEmocional";
 import { motion } from "framer-motion";
 
 // Iconos SVG
@@ -406,20 +407,30 @@ export default function RetosDiarios() {
                   whileHover={{ y: -2 }}
                   transition={springTransition}
                 >
-                  <div className="flex items-center gap-4">
-                    <motion.div 
-                      className="w-14 h-14 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xl"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.8 }}
-                    >
-                      7
-                    </motion.div>
-                    <div>
-                      <p className="text-gray-600">Racha actual</p>
-                      <p className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-teal-600 bg-clip-text text-transparent">
-                        días
-                      </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <motion.div 
+                        className="w-14 h-14 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        7
+                      </motion.div>
+                      <div>
+                        <p className="text-gray-600">Racha actual</p>
+                        <p className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-teal-600 bg-clip-text text-transparent">
+                          días
+                        </p>
+                      </div>
                     </div>
+                    <motion.button
+                      onClick={() => setVistaActual("calendario")}
+                      className="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-md hover:bg-teal-600 transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {icons.calendar}
+                    </motion.button>
                   </div>
                 </motion.div>
 
@@ -566,6 +577,8 @@ export default function RetosDiarios() {
         return <ChatBot />;
       case "refugio":
         return <Refugio />;
+      case "calendario":
+        return <CalendarioEmocional />;
       default:
         return <div>Vista no encontrada</div>;
     }
