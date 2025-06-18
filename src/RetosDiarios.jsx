@@ -11,7 +11,9 @@ const icons = {
   ),
   calendar: (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+      />
     </svg>
   ),
   paw: (
@@ -35,13 +37,25 @@ const icons = {
     </svg>
   ),
   plus: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
     </svg>
   ),
   minus: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+    </svg>
+  ),
+  edit: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
+      />
+    </svg>
+  ),
+  back: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
     </svg>
   ),
 };
@@ -58,12 +72,25 @@ const tareasIniciales = [
   { id: 3, texto: "Un día gris", completada: false },
 ];
 
+const entradasIniciales = [
+  {
+    id: 1,
+    titulo: "Recuerdos de infancia",
+    contenido: "Querido diario, hoy recor...",
+    fecha: "Sunday, May 4"
+  }
+];
+
 export default function RetosDiarios() {
   const [tab, setTab] = useState("retos");
   const [tareas, setTareas] = useState(tareasIniciales);
   const [habitos, setHabitos] = useState(habitosIniciales);
   const [nuevoHabito, setNuevoHabito] = useState("");
   const [vistaActual, setVistaActual] = useState("inicio");
+  const [entradas, setEntradas] = useState(entradasIniciales);
+  const [mostrarNuevaEntrada, setMostrarNuevaEntrada] = useState(false);
+  const [nuevaEntrada, setNuevaEntrada] = useState({ titulo: "", contenido: "" });
+  const [entradaEnEdicion, setEntradaEnEdicion] = useState(null);
 
   const toggleTarea = (id) => {
     setTareas(tareas.map(tarea => 
@@ -90,6 +117,166 @@ export default function RetosDiarios() {
       }]);
       setNuevoHabito("");
     }
+  };
+
+  const guardarNuevaEntrada = () => {
+    if (nuevaEntrada.titulo.trim() && nuevaEntrada.contenido.trim()) {
+      const fecha = new Date();
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      const fechaFormateada = fecha.toLocaleDateString('es-ES', options);
+      
+      setEntradas([...entradas, {
+        id: Date.now(),
+        titulo: nuevaEntrada.titulo,
+        contenido: nuevaEntrada.contenido,
+        fecha: fechaFormateada
+      }]);
+      setNuevaEntrada({ titulo: "", contenido: "" });
+      setMostrarNuevaEntrada(false);
+    }
+  };
+
+  const iniciarEdicion = (entrada) => {
+    setEntradaEnEdicion({
+      ...entrada,
+      tituloTemp: entrada.titulo,
+      contenidoTemp: entrada.contenido
+    });
+  };
+
+  const guardarEdicion = () => {
+    if (entradaEnEdicion.tituloTemp.trim() && entradaEnEdicion.contenidoTemp.trim()) {
+      setEntradas(entradas.map(entrada => 
+        entrada.id === entradaEnEdicion.id 
+          ? {
+              ...entrada,
+              titulo: entradaEnEdicion.tituloTemp,
+              contenido: entradaEnEdicion.contenidoTemp
+            }
+          : entrada
+      ));
+      setEntradaEnEdicion(null);
+    }
+  };
+
+  const cancelarEdicion = () => {
+    setEntradaEnEdicion(null);
+  };
+
+  const renderDiario = () => {
+    if (mostrarNuevaEntrada) {
+      return (
+        <div className="min-h-screen bg-[#FFF8E7] flex flex-col">
+          <header className="px-6 py-4 flex items-center border-b border-gray-200">
+            <button 
+              onClick={() => setMostrarNuevaEntrada(false)}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              {icons.back}
+            </button>
+            <h1 className="ml-4 text-xl font-semibold text-gray-800">Añadir Entrada</h1>
+          </header>
+
+          <div className="flex-1 p-6 flex flex-col gap-4">
+            <input
+              type="text"
+              value={nuevaEntrada.titulo}
+              onChange={(e) => setNuevaEntrada({...nuevaEntrada, titulo: e.target.value})}
+              placeholder="Título"
+              className="w-full px-4 py-2 text-lg font-medium bg-transparent border-b border-gray-300 focus:outline-none focus:border-teal-500"
+            />
+            <textarea
+              value={nuevaEntrada.contenido}
+              onChange={(e) => setNuevaEntrada({...nuevaEntrada, contenido: e.target.value})}
+              placeholder="Ingresa tu entrada"
+              className="flex-1 w-full p-4 text-gray-700 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-teal-500 resize-none"
+            />
+            <button
+              onClick={guardarNuevaEntrada}
+              className="w-full py-3 bg-teal-500 text-white rounded-xl font-medium hover:bg-teal-600 transition-colors"
+            >
+              Añadir
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-[#FFF8E7] flex flex-col">
+        <header className="px-6 py-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-gray-800">Diario</h1>
+        </header>
+
+        <div className="flex-1 p-6">
+          {entradas.map(entrada => (
+            <div 
+              key={entrada.id} 
+              className="bg-[#FFE4BC] rounded-xl p-4 mb-4 shadow-sm relative"
+            >
+              {entradaEnEdicion?.id === entrada.id ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <input
+                      type="text"
+                      value={entradaEnEdicion.tituloTemp}
+                      onChange={(e) => setEntradaEnEdicion({
+                        ...entradaEnEdicion,
+                        tituloTemp: e.target.value
+                      })}
+                      className="flex-1 px-2 py-1 text-lg font-bold bg-white rounded border border-gray-200 focus:outline-none focus:border-teal-500"
+                    />
+                  </div>
+                  <textarea
+                    value={entradaEnEdicion.contenidoTemp}
+                    onChange={(e) => setEntradaEnEdicion({
+                      ...entradaEnEdicion,
+                      contenidoTemp: e.target.value
+                    })}
+                    className="w-full p-2 text-gray-700 bg-white rounded border border-gray-200 focus:outline-none focus:border-teal-500 resize-none min-h-[100px]"
+                  />
+                  <div className="flex gap-2 justify-end mt-2">
+                    <button
+                      onClick={cancelarEdicion}
+                      className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={guardarEdicion}
+                      className="px-4 py-2 text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-start">
+                    <h2 className="font-bold text-gray-800">{entrada.titulo}</h2>
+                    <button 
+                      onClick={() => iniciarEdicion(entrada)}
+                      className="text-gray-600 p-1 hover:text-teal-500 transition-colors"
+                    >
+                      {icons.edit}
+                    </button>
+                  </div>
+                  <p className="text-gray-600 text-sm mt-1">{entrada.contenido}</p>
+                  <p className="text-gray-500 text-xs mt-2">{entrada.fecha}</p>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setMostrarNuevaEntrada(true)}
+          className="fixed right-6 bottom-24 w-14 h-14 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-teal-600 transition-colors"
+        >
+          {icons.plus}
+        </button>
+      </div>
+    );
   };
 
   const renderContenido = () => {
@@ -222,7 +409,8 @@ export default function RetosDiarios() {
             </main>
           </>
         );
-      // Aquí podemos agregar más casos para otras vistas cuando las necesitemos
+      case "diario":
+        return renderDiario();
       default:
         return <div>Vista no encontrada</div>;
     }
@@ -236,14 +424,27 @@ export default function RetosDiarios() {
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
         <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
           <button 
-            onClick={() => setVistaActual("inicio")}
+            onClick={() => {
+              setVistaActual("inicio");
+              setMostrarNuevaEntrada(false);
+            }}
             className={`text-gray-400 hover:text-teal-500 transition-colors ${
               vistaActual === "inicio" ? "text-teal-500" : ""
             }`}
           >
             {icons.home}
           </button>
-          <button className="text-gray-400">{icons.calendar}</button>
+          <button 
+            onClick={() => {
+              setVistaActual("diario");
+              setMostrarNuevaEntrada(false);
+            }}
+            className={`text-gray-400 hover:text-teal-500 transition-colors ${
+              vistaActual === "diario" ? "text-teal-500" : ""
+            }`}
+          >
+            {icons.calendar}
+          </button>
           <button className="text-teal-500 -mt-6 bg-white p-4 rounded-full shadow-lg border-4 border-sky-100">
             {icons.paw}
           </button>
