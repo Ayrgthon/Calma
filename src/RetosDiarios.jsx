@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ChatBot from "./ChatBot";
 
 // Iconos SVG
 const icons = {
@@ -403,6 +404,8 @@ export default function RetosDiarios() {
         );
       case "diario":
         return renderDiario();
+      case "chat":
+        return <ChatBot />;
       default:
         return <div>Vista no encontrada</div>;
     }
@@ -437,7 +440,12 @@ export default function RetosDiarios() {
           >
             {icons.calendar}
           </button>
-          <button className="text-teal-500 -mt-6 bg-white p-4 rounded-full shadow-lg border-4 border-sky-100">
+          <button 
+            onClick={() => setVistaActual("chat")}
+            className={`text-teal-500 -mt-6 bg-white p-4 rounded-full shadow-lg border-4 border-sky-100 ${
+              vistaActual === "chat" ? "border-teal-500" : ""
+            }`}
+          >
             {icons.paw}
           </button>
           <button className="text-gray-400">{icons.heart}</button>
