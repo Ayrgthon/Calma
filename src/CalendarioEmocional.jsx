@@ -25,6 +25,9 @@ export default function CalendarioEmocional() {
     if (dia > diaActual) return 'noOcurrido';
     if (dia === 5) return 'feliz';
     if (dia === 10) return 'triste';
+    if (dia === 12) return 'estresado';
+    if (dia === 13) return 'ansioso';
+    if (dia === 14) return 'emocionado';
     if (dia === 15) return 'enojado';
     if (dia === 20) return 'emocionado';
     if (dia === 25) return 'ansioso';
