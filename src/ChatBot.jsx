@@ -74,7 +74,7 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#F0F2F5]">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Header */}
       <motion.header 
         className="bg-white px-4 py-3 text-center border-b shadow-sm"
@@ -102,7 +102,7 @@ const ChatBot = () => {
           backgroundPosition: 'center'
         }}
       >
-        <div className="max-w-2xl mx-auto p-4">
+        <div className="max-w-2xl mx-auto p-4 pb-16">
           <AnimatePresence>
             {messages.map((message, index) => (
               <Message
@@ -118,7 +118,7 @@ const ChatBot = () => {
       </div>
 
       {/* Input Area */}
-      <div className="bg-[#F0F2F5] px-4 py-3 border-t">
+      <div className="bg-white border-t py-2 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.form 
             onSubmit={handleSubmit}
@@ -128,7 +128,7 @@ const ChatBot = () => {
             transition={{ delay: 0.3 }}
           >
             <motion.div 
-              className="flex-1 bg-white rounded-full shadow-sm overflow-hidden flex items-center"
+              className="flex-1 bg-gray-100 rounded-full overflow-hidden flex items-center"
               whileHover={{ scale: 1.01 }}
               transition={{ duration: 0.2 }}
             >
@@ -137,12 +137,12 @@ const ChatBot = () => {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Escribe tus pensamientos..."
-                className="flex-1 px-4 py-2 focus:outline-none text-gray-700"
+                className="flex-1 px-4 py-2 bg-transparent focus:outline-none text-gray-700"
               />
             </motion.div>
             <motion.button
               type="submit"
-              className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-sm"
+              className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white"
               whileHover={{ scale: 1.05, backgroundColor: "#0D9488" }}
               whileTap={{ scale: 0.95 }}
             >
