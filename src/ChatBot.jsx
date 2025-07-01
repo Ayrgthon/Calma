@@ -84,16 +84,35 @@ const ChatBot = () => {
       // Tiempo aleatorio entre 50ms y 150ms para cada palabra
       await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50));
     }
-
-    // Añadimos el mensaje completo a la lista de mensajes
-    setMessages(prev => [...prev, {
-      isUser: false,
-      text: fullText,
-      avatar: "/sensei-D.png"
-    }]);
     
     setCurrentGeneratingText('');
     setIsTyping(false);
+    return fullText;
+  };
+
+  const generateResponse = async (prompt) => {
+    try {
+      const response = await fetch('http://localhost:5000/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mode: "c",
+          input: prompt
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la respuesta del servidor');
+      }
+
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Error al generar respuesta:', error);
+      return 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -110,8 +129,27 @@ const ChatBot = () => {
     setInputText('');
     setIsTyping(true);
 
-    // Simular respuesta del Sensei
-    await simulateTokenGeneration(SENSEI_RESPONSE);
+    try {
+      // Obtener respuesta del servidor
+      const response = await generateResponse(inputText);
+      
+      // Simular la generación de tokens con la respuesta
+      const generatedText = await simulateTokenGeneration(response);
+
+      // Añadir la respuesta del bot
+      setMessages(prev => [...prev, {
+        isUser: false,
+        text: generatedText,
+        avatar: "/sensei-D.png"
+      }]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, {
+        isUser: false,
+        text: 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?',
+        avatar: "/sensei-D.png"
+      }]);
+    }
   };
 
   return (
