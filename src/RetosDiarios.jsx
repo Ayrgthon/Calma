@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ChatBot from "./ChatBot";
 import Refugio from "./Refugio";
 import CalendarioEmocional from "./CalendarioEmocional";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { getUserData, updateUserData, analyzeSentiment } from "./api";
 
 // Iconos SVG
@@ -132,6 +132,7 @@ export default function RetosDiarios() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [userLoaded, setUserLoaded] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [tareaSeleccionada, setTareaSeleccionada] = useState(null);
 
   useEffect(() => {
     // Traer datos del usuario al montar componente
@@ -208,6 +209,17 @@ export default function RetosDiarios() {
           const emocion = sentimientoResult.sentimiento_detectado.sentimiento.toLowerCase();
           console.log(`Emoción recibida: ${emocion}`);
 
+          const tareaSugerida = sentimientoResult.tarea_sugerida;
+          const tareasActuales = userData.tareas || [];
+          const nuevaTarea = {
+            id: tareasActuales.length > 0 ? Math.max(...tareasActuales.map(t => t.id || 0)) + 1 : 1,
+            texto: tareaSugerida.nombre_tarea,
+            descripcion: tareaSugerida.descripcion,
+            completada: false,
+            creadaEn: new Date().toISOString().split('T')[0]
+          };
+          const tareasActualizadas = [...tareasActuales, nuevaTarea];
+
           const mesAnio = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
           const dia = String(fecha.getDate()).padStart(2, '0');
           const calendarioPrevio = userData.calendarioEmocional || {};
@@ -223,14 +235,17 @@ export default function RetosDiarios() {
 
           await updateUserData({ 
             entradasDiario: entradasActualizadas,
-            calendarioEmocional: calendarioActualizado 
+            calendarioEmocional: calendarioActualizado,
+            tareas: tareasActualizadas
           });
-          console.log("Base de datos actualizada con la nueva nota y la emoción.");
+          console.log("Base de datos actualizada con la nueva nota, la emoción y la tarea sugerida.");
           
+          setTareas(tareasActualizadas);
           setUserData(prev => ({ 
             ...prev, 
             entradasDiario: entradasActualizadas,
-            calendarioEmocional: calendarioActualizado 
+            calendarioEmocional: calendarioActualizado,
+            tareas: tareasActualizadas
           }));
 
         } catch (error) {
@@ -386,19 +401,34 @@ export default function RetosDiarios() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          {entradas.map((entrada, index) => (
+          {entradas.map((entrada) => (
             <motion.div
-              key={index}
-              className="bg-[#FFE4C4] rounded-2xl p-6 mb-4 shadow-sm cursor-pointer relative overflow-hidden"
+              key={entrada.id}
+              className="bg-[#FFE4C4] rounded-2xl p-6 mb-4 shadow-sm relative overflow-hidden group"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              onClick={() => iniciarEdicion(entrada)}
+              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+              whileHover={{ y: -3 }}
             >
-              <h2 className="text-xl font-semibold mb-2 text-gray-800">{entrada.titulo}</h2>
-              <p className="text-gray-600 mb-2">{truncateText(entrada.contenido)}</p>
-              <p className="text-sm text-gray-500 italic">{entrada.fecha}</p>
+              <div className="cursor-pointer" onClick={() => iniciarEdicion(entrada)}>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">{entrada.titulo}</h2>
+                <p className="text-gray-600 mb-2">{truncateText(entrada.contenido)}</p>
+                <p className="text-sm text-gray-500 italic">{entrada.fecha}</p>
+              </div>
+
+              {/* Botón de Borrar */}
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation(); // Evita que se abra la edición al hacer clic
+                  borrarEntrada(entrada.id);
+                }}
+                className="absolute top-3 right-3 w-8 h-8 bg-black/5 rounded-full flex items-center justify-center text-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.8)', color: 'white' }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Borrar entrada"
+              >
+                {icons.trash}
+              </motion.button>
             </motion.div>
           ))}
         </motion.div>
@@ -570,6 +600,14 @@ export default function RetosDiarios() {
                             >
                               {tarea.texto}
                             </span>
+                            <motion.button
+                              onClick={() => setTareaSeleccionada(tarea)}
+                              className="text-sm font-semibold text-teal-600 bg-teal-50 hover:bg-teal-100 px-4 py-1.5 rounded-full transition-colors"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              Abrir
+                            </motion.button>
                           </div>
                         </motion.div>
                       ))}
@@ -655,6 +693,46 @@ export default function RetosDiarios() {
   return (
     <div className="min-h-screen bg-sky-100 flex flex-col">
       {renderContenido()}
+
+      <AnimatePresence>
+        {tareaSeleccionada && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+            onClick={() => setTareaSeleccionada(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full relative shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">{tareaSeleccionada.texto}</h2>
+              
+              <div className="text-gray-600 leading-relaxed">
+                <ol className="list-decimal list-inside space-y-2">
+                  {tareaSeleccionada.descripcion.split(/\d\.\s/).filter(Boolean).map((paso, index) => (
+                    <li key={index}>{paso.trim()}</li>
+                  ))}
+                </ol>
+              </div>
+              
+              <motion.button
+                onClick={() => setTareaSeleccionada(null)}
+                className="mt-8 w-full py-3 bg-teal-500 text-white rounded-xl font-semibold shadow-lg hover:bg-teal-600 transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Entendido
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.nav 
         className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200"
