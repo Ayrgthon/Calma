@@ -15,24 +15,20 @@ const EMOTION_COLORS = {
   sinRegistro: 'bg-gray-400 hover:bg-gray-500' // Días pasados sin entrada
 };
 
-export default function CalendarioEmocional() {
-  const diasDelMes = Array.from({ length: 31 }, (_, i) => i + 1);
-  const nombreMes = new Date().toLocaleString('es-ES', { month: 'long' });
-  const diaActual = new Date().getDate();
+export default function CalendarioEmocional({ calendarioData = {} }) {
+  const ahora = new Date();
+  const diasDelMes = Array.from({ length: new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
+  const nombreMes = ahora.toLocaleString('es-ES', { month: 'long' });
+  const diaActual = ahora.getDate();
+  const mesAnioClave = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}`;
 
-  // Simulación de datos - Esto después se conectará con el diario
   const getEstadoDia = (dia) => {
     if (dia > diaActual) return 'noOcurrido';
-    if (dia === 5) return 'feliz';
-    if (dia === 10) return 'triste';
-    if (dia === 12) return 'estresado';
-    if (dia === 13) return 'ansioso';
-    if (dia === 14) return 'emocionado';
-    if (dia === 15) return 'enojado';
-    if (dia === 20) return 'emocionado';
-    if (dia === 25) return 'ansioso';
-    if (dia === 28) return 'estresado';
-    return 'sinRegistro';
+    
+    const emocionesMes = calendarioData[mesAnioClave] || {};
+    const diaStr = String(dia).padStart(2, '0');
+
+    return emocionesMes[diaStr] || 'sinRegistro';
   };
 
   const containerVariants = {

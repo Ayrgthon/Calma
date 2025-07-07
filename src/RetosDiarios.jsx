@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ChatBot from "./ChatBot";
 import Refugio from "./Refugio";
 import CalendarioEmocional from "./CalendarioEmocional";
 import { motion } from "framer-motion";
+import { getUserData, updateUserData, analyzeSentiment } from "./api";
 
 // Iconos SVG
 const icons = {
@@ -120,68 +121,126 @@ const springTransition = {
 
 export default function RetosDiarios() {
   const [tab, setTab] = useState("retos");
-  const [tareas, setTareas] = useState(tareasIniciales);
-  const [habitos, setHabitos] = useState(habitosIniciales);
+  const [tareas, setTareas] = useState([]);
+  const [habitos, setHabitos] = useState([]);
   const [nuevoHabito, setNuevoHabito] = useState("");
   const [vistaActual, setVistaActual] = useState("inicio");
-  const [entradas, setEntradas] = useState(entradasIniciales);
+  const [entradas, setEntradas] = useState([]);
   const [mostrarNuevaEntrada, setMostrarNuevaEntrada] = useState(false);
   const [nuevaEntrada, setNuevaEntrada] = useState({ titulo: "", contenido: "" });
   const [entradaEnEdicion, setEntradaEnEdicion] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // Traer datos del usuario al montar componente
+    getUserData()
+      .then((data) => {
+        setUserData(data);
+        setTareas(data.tareas || []);
+        setHabitos(data.habitos || []);
+        setEntradas(data.entradasDiario || []);
+        setUserLoaded(true);
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   const toggleTarea = (id) => {
-    setTareas(tareas.map(tarea => 
-      tarea.id === id ? { ...tarea, completada: !tarea.completada } : tarea
-    ));
+    const nuevas = tareas.map((t) => (t.id === id ? { ...t, completada: !t.completada } : t));
+    setTareas(nuevas);
+    updateUserData({ tareas: nuevas });
   };
 
-  const ajustarContador = (id, incremento) => {
-    setHabitos(habitos.map(habito => 
-      habito.id === id 
-        ? { ...habito, contador: Math.max(0, habito.contador + incremento) }
-        : habito
-    ));
+  const ajustarContador = (id, inc) => {
+    const nuevas = habitos.map((h) => (h.id === id ? { ...h, contador: Math.max(0, h.contador + inc) } : h));
+    setHabitos(nuevas);
+    updateUserData({ habitos: nuevas });
   };
 
   const agregarHabito = () => {
     if (nuevoHabito.trim()) {
-      const nuevoId = Math.max(...habitos.map(h => h.id)) + 1;
-      setHabitos([...habitos, {
+      const nuevoId = habitos.length > 0 ? Math.max(...habitos.map(h => h.id)) + 1 : 1;
+      const nuevo = {
         id: nuevoId,
         titulo: nuevoHabito,
         descripcion: `Hábito ${nuevoId}`,
         contador: 0
-      }]);
+      };
+      const nuevosHabitos = [...habitos, nuevo];
+      setHabitos(nuevosHabitos);
       setNuevoHabito("");
+      updateUserData({ habitos: nuevosHabitos });
     }
   };
 
-  const guardarNuevaEntrada = () => {
+  const guardarNuevaEntrada = async () => {
     if (nuevaEntrada.titulo.trim() && nuevaEntrada.contenido.trim()) {
       const fecha = new Date();
       const options = { weekday: 'long', month: 'long', day: 'numeric' };
       const fechaFormateada = fecha.toLocaleDateString('es-ES', options);
       
+      let entradasActualizadas;
+      let nuevaEntradaObj;
+
       if (modoEdicion && entradaEnEdicion) {
-        setEntradas(entradas.map(entrada => 
+        entradasActualizadas = entradas.map(entrada => 
           entrada.id === entradaEnEdicion.id 
-            ? {
-                ...entrada,
-                titulo: nuevaEntrada.titulo,
-                contenido: nuevaEntrada.contenido
-              }
+            ? { ...entrada, titulo: nuevaEntrada.titulo, contenido: nuevaEntrada.contenido }
             : entrada
-        ));
+        );
       } else {
-        setEntradas([...entradas, {
-          id: Date.now(),
+        nuevaEntradaObj = {
+          id: fecha.getTime(),
           titulo: nuevaEntrada.titulo,
           contenido: nuevaEntrada.contenido,
-          fecha: fechaFormateada
-        }]);
+          fecha: fecha.toLocaleDateString('es-ES', { weekday: 'long', month: 'long', day: 'numeric' })
+        };
+        entradasActualizadas = [...entradas, nuevaEntradaObj];
       }
       
+      setEntradas(entradasActualizadas);
+
+      if (!modoEdicion) {
+        try {
+          console.log("Enviando a la API de sentimiento...");
+          const sentimientoResult = await analyzeSentiment(nuevaEntradaObj.contenido);
+          const emocion = sentimientoResult.sentimiento_detectado.sentimiento.toLowerCase();
+          console.log(`Emoción recibida: ${emocion}`);
+
+          const mesAnio = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+          const dia = String(fecha.getDate()).padStart(2, '0');
+          const calendarioPrevio = userData.calendarioEmocional || {};
+          const calendarioDelMes = calendarioPrevio[mesAnio] || {};
+          
+          const calendarioActualizado = {
+            ...calendarioPrevio,
+            [mesAnio]: {
+              ...calendarioDelMes,
+              [dia]: emocion
+            }
+          };
+
+          await updateUserData({ 
+            entradasDiario: entradasActualizadas,
+            calendarioEmocional: calendarioActualizado 
+          });
+          console.log("Base de datos actualizada con la nueva nota y la emoción.");
+          
+          setUserData(prev => ({ 
+            ...prev, 
+            entradasDiario: entradasActualizadas,
+            calendarioEmocional: calendarioActualizado 
+          }));
+
+        } catch (error) {
+          console.error("Error en el pipeline de sentimiento:", error);
+          await updateUserData({ entradasDiario: entradasActualizadas });
+        }
+      } else {
+        await updateUserData({ entradasDiario: entradasActualizadas });
+      }
+
       setNuevaEntrada({ titulo: "", contenido: "" });
       setMostrarNuevaEntrada(false);
       setModoEdicion(false);
@@ -201,7 +260,9 @@ export default function RetosDiarios() {
 
   const borrarEntrada = (id) => {
     if (window.confirm('¿Estás seguro de que quieres borrar esta entrada?')) {
-      setEntradas(entradas.filter(entrada => entrada.id !== id));
+      const updated = entradas.filter(entrada => entrada.id !== id);
+      setEntradas(updated);
+      updateUserData({ entradasDiario: updated });
     }
   };
 
@@ -382,7 +443,7 @@ export default function RetosDiarios() {
                   transition={{ delay: 0.2, duration: 0.5 }}
                 >
                   <h1 className="text-3xl font-bold text-gray-800 mb-1">
-                    Hola, Luna
+                    Hola, {userData ? userData.nombre.split(' ')[0] : '...'}
                   </h1>
                   <p className="text-gray-600">Capi</p>
                 </motion.div>
@@ -585,7 +646,7 @@ export default function RetosDiarios() {
       case "refugio":
         return <Refugio />;
       case "calendario":
-        return <CalendarioEmocional />;
+        return <CalendarioEmocional calendarioData={userData?.calendarioEmocional} />;
       default:
         return <div>Vista no encontrada</div>;
     }

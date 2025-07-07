@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getUserData, updateUserData } from './api';
 
 const Message = ({ isUser, text, avatar }) => (
   <motion.div 
@@ -33,13 +34,7 @@ const SENSEI_RESPONSE = "Soy Capybara Sensei, tu guía de bienestar emocional. E
 
 const ChatBot = () => {
   const [inputText, setInputText] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      isUser: false,
-      text: SENSEI_RESPONSE,
-      avatar: "/sensei-D.png"
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentGeneratingText, setCurrentGeneratingText] = useState('');
@@ -51,6 +46,32 @@ const ChatBot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, currentGeneratingText]);
+
+  useEffect(() => {
+    getUserData()
+      .then(data => {
+        if (data.chatHistory && data.chatHistory.length) {
+          setMessages(data.chatHistory);
+        } else {
+          setMessages([
+            {
+              isUser: false,
+              text: SENSEI_RESPONSE,
+              avatar: "/sensei-D.png"
+            }
+          ]);
+        }
+      })
+      .catch(() => {
+        setMessages([
+          {
+            isUser: false,
+            text: SENSEI_RESPONSE,
+            avatar: "/sensei-D.png"
+          }
+        ]);
+      });
+  }, []);
 
   const LoadingDots = () => (
     <motion.div className="flex space-x-1 items-center p-2">
@@ -122,7 +143,8 @@ const ChatBot = () => {
     const userMessage = {
       isUser: true,
       text: inputText,
-      avatar: "/ropa7-D.png"
+      avatar: "/ropa7-D.png",
+      timestamp: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -137,11 +159,16 @@ const ChatBot = () => {
       const generatedText = await simulateTokenGeneration(response);
 
       // Añadir la respuesta del bot
-      setMessages(prev => [...prev, {
+      const botMsg = {
         isUser: false,
         text: generatedText,
-        avatar: "/sensei-D.png"
-      }]);
+        avatar: "/sensei-D.png",
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, botMsg]);
+
+      // Actualizar historial del usuario
+      updateUserData({ chatHistory: [...messages, userMessage, botMsg] });
     } catch (error) {
       console.error('Error:', error);
       setMessages(prev => [...prev, {

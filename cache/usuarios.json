@@ -1,0 +1,29 @@
+{
+  "1129504032": {
+    "_id": 1129504032,
+    "nombre": "Ayrgthon Soraca",
+    "rachaActualDias": 7,
+    "tareas": [],
+    "habitos": [],
+    "entradasDiario": [
+      {
+        "id": 1751888581327,
+        "titulo": "Nuevo comienzo",
+        "contenido": "Hoy he empezado un nuevo proyecto personal y me siento lleno de energía y optimismo. ¡Va a ser un gran mes!",
+        "fecha": "lunes, 7 de julio"
+      }
+    ],
+    "refugio": {
+      "temasConsultados": [],
+      "favoritos": []
+    },
+    "chatHistory": [],
+    "calendarioEmocional": {
+      "2025-07": {
+        "07": "emocionado"
+      }
+    },
+    "createdAt": "2024-05-01T12:00:00Z",
+    "updatedAt": "2025-07-07T11:43:05.012Z"
+  }
+}
