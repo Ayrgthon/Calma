@@ -183,7 +183,7 @@ export default function RetosDiarios() {
       
       let entradasActualizadas;
       let nuevaEntradaObj;
-
+      
       if (modoEdicion && entradaEnEdicion) {
         entradasActualizadas = entradas.map(entrada => 
           entrada.id === entradaEnEdicion.id 
@@ -255,7 +255,7 @@ export default function RetosDiarios() {
       } else {
         await updateUserData({ entradasDiario: entradasActualizadas });
       }
-
+      
       setNuevaEntrada({ titulo: "", contenido: "" });
       setMostrarNuevaEntrada(false);
       setModoEdicion(false);
@@ -411,9 +411,9 @@ export default function RetosDiarios() {
               whileHover={{ y: -3 }}
             >
               <div className="cursor-pointer" onClick={() => iniciarEdicion(entrada)}>
-                <h2 className="text-xl font-semibold mb-2 text-gray-800">{entrada.titulo}</h2>
-                <p className="text-gray-600 mb-2">{truncateText(entrada.contenido)}</p>
-                <p className="text-sm text-gray-500 italic">{entrada.fecha}</p>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800">{entrada.titulo}</h2>
+              <p className="text-gray-600 mb-2">{truncateText(entrada.contenido)}</p>
+              <p className="text-sm text-gray-500 italic">{entrada.fecha}</p>
               </div>
 
               {/* Botón de Borrar */}

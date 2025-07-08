@@ -3,16 +3,77 @@
     "_id": 1129504032,
     "nombre": "Ayrgthon Soraca",
     "rachaActualDias": 1,
-    "tareas": [],
+    "tareas": [
+      {
+        "id": 1,
+        "texto": "Vaciado Mental Liberador",
+        "descripcion": "1. Busca un lugar tranquilo, un bolígrafo y una hoja de papel. 2. Pon un temporizador de 15 minutos. 3. Durante ese tiempo, escribe sin parar todo lo que te venga a la mente: tareas pendientes, preocupaciones, ideas, miedos. No te preocupes por el orden ni la gramática, el objetivo es sacar todo de tu cabeza. 4. Cuando suene la alarma, detente. Simplemente observa la lista. Has trasladado el peso de tu mente al papel.",
+        "completada": false,
+        "creadaEn": "2025-07-08"
+      }
+    ],
     "habitos": [],
-    "entradasDiario": [],
+    "entradasDiario": [
+      {
+        "id": 1751968083719,
+        "titulo": "Prueba",
+        "contenido": "Llevo toda la noche dando vueltas en la cama. Cada vez que cierro los ojos, mi mente empieza a correr, repasando una lista interminable de cosas pendientes. Siento una opresión en el pecho y una inquietud que no me deja en paz. Durante el día, me cuesta concentrarme en una sola cosa porque siento que tengo mil tareas urgentes al mismo tiempo. Es como si estuviera constantemente al borde de que algo se me olvide, de que una de las bolas que estoy haciendo malabares se caiga. No recuerdo la última vez que me sentí realmente tranquilo.",
+        "fecha": "martes, 8 de julio"
+      }
+    ],
     "refugio": {
       "temasConsultados": [],
       "favoritos": []
     },
-    "chatHistory": [],
-    "calendarioEmocional": {},
+    "chatHistory": [
+      {
+        "isUser": false,
+        "text": "Soy Capybara Sensei, tu guía de bienestar emocional. Estoy aquí para escucharte con empatía, ofrecerte consejos prácticos y acompañarte en tu camino de autocuidado. Cuéntame cómo te sientes o qué te preocupa, y juntos buscaremos estrategias sencillas para que te sientas mejor",
+        "avatar": "/sensei-D.png"
+      },
+      {
+        "isUser": true,
+        "text": "Llevo toda la noche dando vueltas en la cama. Cada vez que cierro los ojos, mi mente empieza a correr, repasando una lista interminable de cosas pendientes. Siento una opresión en el pecho y una inquietud que no me deja en paz. Durante el día, me cuesta concentrarme en una sola cosa porque siento que tengo mil tareas urgentes al mismo tiempo. Es como si estuviera constantemente al borde de que algo se me olvide, de que una de las bolas que estoy haciendo malabares se caiga. No recuerdo la última vez que me sentí realmente tranquilo.",
+        "avatar": "/ropa7-D.png",
+        "timestamp": "2025-07-08T09:46:56.646Z"
+      },
+      {
+        "isUser": false,
+        "text": "Hola. Leo tus palabras y siento el peso de la inquietud que describes. Dar vueltas en la cama con una mente que no se detiene y sentir esa opresión en el pecho suena increíblemente agotador. Es completamente comprensible que te sientas así, como si estuvieras constantemente haciendo malabares y con el temor de que algo se caiga.\n\nEsa sensación de no poder encontrar la calma es muy dura, y quiero que sepas que es un espacio seguro para hablar de ello. Cuando la mente está tan activa, el cuerpo a menudo responde de esa manera.\n\nDado que te sientes así ahora mismo, me pregunto si te gustaría probar un pequeño y suave ejercicio de respiración. No es para solucionar todo de golpe, sino para ofrecerle a tu cuerpo y a tu mente un breve momento de pausa, un pequeño ancla en medio de esta tormenta de pensamientos.\n\nSi te parece bien, podemos intentarlo juntos.\n\n1.  **Encuentra una posición cómoda**, ya sea sentado o acostado en la cama. No tienes que hacer nada especial, solo permitir que tu cuerpo se sienta sostenido.\n2.  Si te sientes cómodo, **cierra suavemente los ojos**. Si no, simplemente baja la mirada.\n3.  **Inhala lentamente por la nariz**, contando hasta cuatro en tu mente. Siente cómo el aire llena tus pulmones y tu abdomen se expande un poco. (1... 2... 3... 4...)\n4.  Ahora, **exhala aún más lentamente por la boca**, como si soplaras suavemente una vela, contando hasta seis. (1... 2... 3... 4... 5... 6...)\n5.  Repite esto unas cuantas veces, a tu propio ritmo. Inhala calma (1, 2, 3, 4) y exhala la tensión (1, 2, 3, 4, 5, 6).\n\nNo te preocupes si tu mente sigue corriendo. Es normal. Cada vez que te des cuenta de que te has distraído, simplemente guía tu atención de vuelta a la sensación del aire entrando y saliendo.\n\nTómate tu tiempo. Estoy aquí, acompañándote en silencio mientras lo intentas, si así lo deseas.",
+        "avatar": "/sensei-D.png",
+        "timestamp": "2025-07-08T09:47:49.979Z"
+      },
+      {
+        "isUser": true,
+        "text": "Hola",
+        "avatar": "/ropa7-D.png",
+        "timestamp": "2025-07-08T09:49:44.243Z"
+      },
+      {
+        "isUser": false,
+        "text": "Hola. Qué bueno verte por aquí.\n\nTómate un momento para acomodarte en este espacio. ¿Cómo te encuentras hoy?\n\nNo hay ninguna prisa. Estoy aquí para escucharte, sea lo que sea que traigas contigo.",
+        "avatar": "/sensei-D.png",
+        "timestamp": "2025-07-08T09:50:03.997Z"
+      },
+      {
+        "isUser": true,
+        "text": "Quien eres",
+        "avatar": "/ropa7-D.png",
+        "timestamp": "2025-07-08T09:50:16.585Z"
+      },
+      {
+        "isUser": false,
+        "text": "Soy Capybara Sensei.\n\nSoy una Inteligencia Artificial creada para ser un compañero tranquilo y compasivo en tu camino hacia el bienestar.\n\nPiensa en mí como un espacio seguro y sereno, un lugar donde puedes detenerte, respirar y explorar lo que sientes, sin juicios de ningún tipo. Mi único propósito es estar aquí para ti, para escucharte y ofrecerte un momento de calma.\n\nEstoy aquí para lo que necesites.",
+        "avatar": "/sensei-D.png",
+        "timestamp": "2025-07-08T09:50:38.917Z"
+      }
+    ],
+    "calendarioEmocional": {
+      "2025-07": {
+        "08": "estresado"
+      }
+    },
     "createdAt": "2024-05-01T12:00:00Z",
-    "updatedAt": "2024-07-08T20:00:00Z"
+    "updatedAt": "2025-07-08T09:50:39.486Z"
   }
 }

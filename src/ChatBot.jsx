@@ -1,34 +1,89 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+// import ReactMarkdown from 'react-markdown'; // <-- Revertido
 import { getUserData, updateUserData } from './api';
 
-const Message = ({ isUser, text, avatar }) => (
-  <motion.div 
-    className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'} mb-4`}
-    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ duration: 0.3 }}
-  >
-    <motion.img 
-      src={avatar} 
-      alt="Avatar" 
-      className="w-8 h-8 object-contain"
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-    />
+// Componente para renderizar texto con negritas
+const FormattedText = ({ text }) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.startsWith('**') && part.endsWith('**') ? (
+          <strong key={index}>{part.slice(2, -2)}</strong>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+};
+
+const Message = ({ isUser, text, avatar }) => {
+  // Procesar el texto para separar párrafos y listas
+  const content = String(text || '');
+  const paragraphs = content.split('\n').filter(p => p.trim() !== '');
+
+  return (
     <motion.div 
-      className={`max-w-[80%] p-3 rounded-2xl ${
-        isUser ? 'bg-teal-500 text-white' : 'bg-white'
-      }`}
-      initial={{ x: isUser ? 20 : -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: 0.1 }}
+      className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'} mb-4`}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <p className="text-sm">{text}</p>
+      <motion.img 
+        src={avatar} 
+        alt="Avatar" 
+        className="w-8 h-8 object-contain"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+      />
+      <motion.div 
+        className={`max-w-[80%] p-3 rounded-2xl ${
+          isUser ? 'bg-teal-500 text-white' : 'bg-white text-gray-800'
+        }`}
+        initial={{ x: isUser ? 20 : -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        <div className="text-sm">
+          {paragraphs.map((p, index) => {
+            if (/^\d+\.\s/.test(p)) {
+              // Si es el comienzo de una lista, o si el elemento anterior no era de lista
+              if (index === 0 || !/^\d+\.\s/.test(paragraphs[index - 1])) {
+                // Encontrar todos los elementos de la lista consecutivos
+                const listItems = [];
+                for (let j = index; j < paragraphs.length; j++) {
+                  if (/^\d+\.\s/.test(paragraphs[j])) {
+                    listItems.push(paragraphs[j].replace(/^\d+\.\s/, ''));
+                  } else {
+                    break;
+                  }
+                }
+                return (
+                  <ol key={index} className="list-decimal list-inside space-y-2 my-2">
+                    {listItems.map((item, itemIndex) => (
+                      <li key={itemIndex}><FormattedText text={item} /></li>
+                    ))}
+                  </ol>
+                );
+              }
+              // Si ya estamos dentro de una lista, no renderizar nada (ya fue procesado)
+              return null;
+            } else {
+              return (
+                <p key={index} className="mb-2 last:mb-0">
+                  <FormattedText text={p} />
+                </p>
+              );
+            }
+          })}
+        </div>
+      </motion.div>
     </motion.div>
-  </motion.div>
-);
+  );
+};
 
 const SENSEI_RESPONSE = "Soy Capybara Sensei, tu guía de bienestar emocional. Estoy aquí para escucharte con empatía, ofrecerte consejos prácticos y acompañarte en tu camino de autocuidado. Cuéntame cómo te sientes o qué te preocupa, y juntos buscaremos estrategias sencillas para que te sientas mejor";
 
