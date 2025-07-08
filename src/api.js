@@ -1,6 +1,6 @@
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = '/api-db';
 const USER_ID = 1129504032;
-const SENTIMENT_API_URL = 'http://127.0.0.1:5000/api';
+const SENTIMENT_API_URL = '/api-model/api';
 
 export const getUserData = async () => {
   const res = await fetch(`${BASE_URL}/usuarios/${USER_ID}`);

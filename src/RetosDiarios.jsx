@@ -512,7 +512,7 @@ export default function RetosDiarios() {
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.8 }}
                       >
-                        7
+                        {userData ? userData.rachaActualDias : '...'}
                       </motion.div>
                       <div>
                         <p className="text-gray-600">Racha actual</p>

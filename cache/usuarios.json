@@ -2,66 +2,17 @@
   "1129504032": {
     "_id": 1129504032,
     "nombre": "Ayrgthon Soraca",
-    "rachaActualDias": 7,
-    "tareas": [
-      {
-        "id": 1,
-        "texto": "¡Comparte tu Alegría!",
-        "descripcion": "1. Reflexiona sobre el desafío que superaste y el sentimiento de felicidad que te produjo. 2. Escribe un breve mensaje (3-4 frases) compartiendo tu experiencia y un consejo para otros que puedan estar enfrentando desafíos similares. 3. Publica tu mensaje en una red social de tu elección o envíaselo a un amigo/familiar que creas que podría beneficiarse de él.",
-        "completada": true,
-        "creadaEn": "2025-07-07"
-      }
-    ],
+    "rachaActualDias": 1,
+    "tareas": [],
     "habitos": [],
-    "entradasDiario": [
-      {
-        "id": 1751929799803,
-        "titulo": "Un logro inesperado",
-        "contenido": "No me lo puedo creer, después de semanas de esfuerzo y de pensar que no lo conseguiría, finalmente he resuelto ese problema tan complicado en el trabajo. Me siento increíblemente orgulloso y aliviado. Es una sensación de pura satisfacción.",
-        "fecha": "lunes, 7 de julio"
-      }
-    ],
+    "entradasDiario": [],
     "refugio": {
       "temasConsultados": [],
       "favoritos": []
     },
-    "chatHistory": [
-      {
-        "isUser": false,
-        "text": "Soy Capybara Sensei, tu guía de bienestar emocional. Estoy aquí para escucharte con empatía, ofrecerte consejos prácticos y acompañarte en tu camino de autocuidado. Cuéntame cómo te sientes o qué te preocupa, y juntos buscaremos estrategias sencillas para que te sientas mejor",
-        "avatar": "/sensei-D.png"
-      },
-      {
-        "isUser": true,
-        "text": "Hola",
-        "avatar": "/ropa7-D.png",
-        "timestamp": "2025-07-07T23:11:17.408Z"
-      },
-      {
-        "isUser": false,
-        "text": "Hola. Es un placer conocerte. Soy Capybara Sensei. Estoy aquí para escucharte y ofrecerte un espacio seguro y tranquilo donde puedas explorar tus pensamientos y sentimientos. ¿Cómo te sientes hoy?",
-        "avatar": "/sensei-D.png",
-        "timestamp": "2025-07-07T23:11:23.469Z"
-      },
-      {
-        "isUser": true,
-        "text": "me he sentido muy abrumado y muy triste, perdí mi empleo, me enfermé y casi muero de un paro cardiaco, mi novia me dejó y siento que me odia, estoy completamente solo, por favor auxilio.",
-        "avatar": "/ropa7-D.png",
-        "timestamp": "2025-07-07T23:12:05.074Z"
-      },
-      {
-        "isUser": false,
-        "text": "Oh, amigo mío, lamento muchísimo escuchar todo lo que estás pasando. Suena como si una tormenta te hubiera golpeado con toda su fuerza. Es completamente comprensible que te sientas abrumado, triste y solo. Perder el empleo, enfrentar una enfermedad grave, una ruptura... todo eso junto es una carga inmensa para cualquiera.\n\nQuiero que sepas que estoy aquí para escucharte, sin juicios y con toda la calma que necesites. No estás solo en esto.\n\n¿Te sientes cómodo contándome un poco más sobre cómo te sientes específicamente? A veces, ponerle palabras a lo que sentimos puede ayudar a aligerar un poco la carga. No tienes que entrar en detalles si no quieres, pero cualquier cosa que quieras compartir será bienvenida.",
-        "avatar": "/sensei-D.png",
-        "timestamp": "2025-07-07T23:12:20.277Z"
-      }
-    ],
-    "calendarioEmocional": {
-      "2025-07": {
-        "07": "feliz"
-      }
-    },
+    "chatHistory": [],
+    "calendarioEmocional": {},
     "createdAt": "2024-05-01T12:00:00Z",
-    "updatedAt": "2025-07-07T23:12:20.288Z"
+    "updatedAt": "2024-07-08T20:00:00Z"
   }
 }
