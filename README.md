@@ -55,32 +55,20 @@ La arquitectura de CALMA está diseñada para ser modular y eficiente, permitien
 
 ```mermaid
 graph TD
-    subgraph "Usuario"
-        A[Navegador - React App]
-    end
+    A[Usuario - React App] -->|1. Crea entrada en diario| B[Vite Dev Server]
+    B -->|2. Proxy /api-db/*| C[API Mock Express]
+    C -->|3. Lee/Escribe| D[cache/usuarios.json]
+    
+    B -->|4. Proxy /api-model/*| E[Modelo Llama 3B]
+    E -->|5. Devuelve emoción y tarea| B
+    B -->|6. Respuesta al frontend| A
+    
+    A -->|7. Actualiza UI| A
+    C -->|8. Persiste cambios| D
 
-    subgraph "Servidor de Desarrollo (Local)"
-        B(Vite Dev Server con Proxy)
-    end
-
-    subgraph "Backend y Modelos (Local)"
-        C["API Mock<br>(Node.js/Express)"]
-        D["Base de Datos<br>cache/usuarios.json"]
-        E["API del Modelo<br>(Llama 3B Instruct)"]
-    end
-
-    A -- "1. Crea/Edita Nota" --> B
-    B -- "2. Redirige /api-db/*" --> C
-    C -- "3. Lee/Escribe" --> D
-    A -- "4. Petición de Análisis" --> B
-    B -- "5. Redirige /api-model/*" --> E
-    E -- "6. Devuelve Emoción y Tarea" --> A
-    A -- "7. Actualiza DB con nuevos datos" --> B
-    C -- "8. Persiste datos enriquecidos" --> D
-
-    style A fill:#BDECFD
-    style E fill:#FFDDC1
-    style D fill:#D3D3D3
+    style A fill:#e0f2fe,stroke:#0891b2,stroke-width:2px
+    style E fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style D fill:#e5e7eb,stroke:#6b7280,stroke-width:2px
 ```
 
 ### Descripción del Pipeline de Datos
